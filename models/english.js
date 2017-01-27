@@ -1,9 +1,9 @@
 const Sequelize = require('sequelize')
 const db = require('./_db')
 
-const English = db.define('english', {
+const EnglishTerm = db.define('englishTerm', {
 	phrase: Sequelize.STRING,
 	partOfSpeech: Sequelize.STRING
 })
 
-module.exports = English;
+module.exports = EnglishTerm;

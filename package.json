@@ -4,16 +4,26 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha models/*_test.js"
+    "test": "mocha models/*_test.js",
+    "build": "check-node-version --node '>= 6.7.0' && bin/setup && webpack",
+    "start": "nodemon server/index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.16.0",
     "express": "^4.14.0",
+    "nodemon": "^1.11.0",
     "pg": "^6.1.2",
     "pg-hstore": "^2.3.2",
     "pg-native": "^1.10.0",
-    "sequelize": "^3.30.0"
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2",
+    "react-redux": "^5.0.2",
+    "react-router": "^3.0.2",
+    "redux": "^3.6.0",
+    "sequelize": "^3.30.0",
+    "webpack": "^1.14.0"
   },
   "devDependencies": {
     "chai": "^3.5.0"
