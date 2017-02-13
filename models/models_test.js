@@ -6,7 +6,8 @@ const Word = require('./word')
 const Entry = require('./entry');
 const WordEntry = require('./wordEntry');
 const EnglishTerm = require('./english');
-
+const Source = require('./source');
+const Reference = require('./reference');
 
 describe('Dictionary Model', () => {
 	let nounTemplate, pravilnaWord, pravilnaEntry, pravilnaEnglishTerm;
@@ -422,5 +423,127 @@ describe('Dictionary Model', () => {
 		it('can be connected to source by source.addReference')
 		it('can be connected to source by reference.setSource')
 		it('can create new reference from source')
+	})
+
+	describe('using \'include\' for loading models', () => {
+		let revnostSource, 
+			revnostReference, 
+			revnostWord, 
+			revnostWordEntry,
+			revnostEntry,
+			revnostEnglishTerm;
+
+		before('create full source-reference-word-wordentry-entry-english set', () => {
+			// Source: Камикадзе
+			return Source.create({
+				type: 'song',
+				title: 'Камикадзе',
+				author: 'Инь-Ян'
+			})
+			.then(newSource => {
+				return newSource.createReference({
+					context: 'Ревность накрыла меня',
+					page: 1,
+					line: 1
+				})
+			})
+			.then(newReference => {
+				return newReference.createWord({
+					spelling: 'ревность'
+				})
+			})
+			.then(newWord => {
+				return newWord.createEntry({
+					base: 'ревность',
+					partOfSpeech: 'noun'
+				},{
+					positionList: [0,6],
+					pronunciation: 'ре́вность'
+				})
+			})
+			.then(newEntry => {
+				newEntry.setTemplate(nounTemplate)
+				return newEntry.createEnglishTerm({
+					phrase: 'jealousy',
+					partOfSpeech: 'noun'
+				})
+			})
+		})
+
+		it('should all exist in the database', () => {
+			return Promise.all([
+				Source.findOne({where: {type: 'song'}}),
+				Reference.findOne({where: {page: 1}}),
+				Word.findOne({where: {spelling: 'ревность'}}),
+				WordEntry.findOne({where: {pronunciation: 'ре́вность'}}),
+				Entry.findOne({where: {base: 'ревность'}}),
+				EnglishTerm.findOne({where: {phrase: 'jealousy'}})
+			])
+			.then(foundList => {
+				assert(Array.isArray(foundList));
+				expect(foundList[0].title).to.exist;
+				expect(foundList[1].context).to.exist;
+				expect(foundList[2].spelling).to.exist;
+				expect(foundList[3].pronunciation).to.exist;
+				expect(foundList[4].base).to.exist;
+				expect(foundList[5].phrase).to.exist;
+				
+				[revnostSource, revnostReference, revnostWord, revnostWordEntry, revnostEntry, revnostEnglishTerm] = foundList;
+			})
+		})
+
+		describe('Entry including EnglishTerm', () => {
+			let holding;
+
+			before('fetching entry including english', () => {
+				return Entry.findOne({
+					where: {base: 'ревность'},
+					include: [{model: EnglishTerm}]
+				})
+				.then(foundEntry => {
+					holding = foundEntry;
+				})
+			})
+
+			it('should be Entry', () => {
+				expect(holding.base).to.exist;
+				expect(holding.partOfSpeech).to.exist;
+			})
+
+			it('should have English meaning attached', () => {
+				// console.log(holding.englishTerms[0].EnglishEntries)
+
+				expect(holding.englishTerms).to.exist;
+				assert(Array.isArray(holding.englishTerms));
+			})
+		})
+
+		describe('Entry including Word', () => {
+			let holding;
+
+			before('fetching entry including english', () => {
+				return Entry.findOne({
+					where: {base: 'ревность'},
+					include: [{model: Word}]
+				})
+				.then(foundEntry => {
+					holding = foundEntry;
+				})
+			})
+
+			it('should be Entry', () => {
+				expect(holding.base).to.exist;
+				expect(holding.partOfSpeech).to.exist;
+			})
+
+			it('should have Word(s) attached', () => {
+				// console.log(holding.englishTerms[0].EnglishEntries)
+
+				expect(holding.words).to.exist;
+				assert(Array.isArray(holding.words));
+			})
+		})
+
+		// describe('Entry including')
 	})
 })

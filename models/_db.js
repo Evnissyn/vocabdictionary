@@ -1,6 +1,6 @@
 var Sequelize = require('sequelize');
 
-const name = it ? 'RussianTest' : 'Russian'
+const name = global.it ? 'RussianTest' : 'Russian';
 const url = `postgres://localhost:5432/${name}`
 
 var db = new Sequelize(url, {

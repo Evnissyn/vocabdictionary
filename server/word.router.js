@@ -12,11 +12,24 @@ router.get('/', (req, res, next) => {
 	.catch(next);
 })
 
-router.get('/:id', (req, res, next) => {
+router.get('/spelling/:spelling', (req, res, next) => {
+	Word.findOne({
+		where: {
+			spelling: req.params.spelling
+		}
+	})
+	.then(foundWord => {
+		res.json(foundWord);
+	})
+	.catch(next)
+})
+
+router.get('/id/:id', (req, res, next) => {
 	Word.findById(req.params.id)
 	.then(foundWord => {
-		res.json(foundList)
+		res.json(foundWord)
 	})
+	.catch(next)
 })
 
 module.exports = router;
