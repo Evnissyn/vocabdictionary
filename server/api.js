@@ -4,6 +4,9 @@ const router = express.Router()
 
 router.use('/word', require('./word.router'));
 router.use('/entry', require('./entry.router'));
+router.use('/template', require('./template.router'))
+
+
 
 // Send along any errors
 router.use((err, req, res, next) => {
